@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Farmgate</title>
+
+  <link rel="stylesheet" type = "text/css" href = "style_sheet.css">
+  
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dimple/2.3.0/dimple.latest.min.js"></script>
+
+  <!--Bootstrap-->
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+ 
+
+  <script>
+
+    // Variables to store data points for the graphs
+    window.firstValues    = new Array();
+    window.secondValues   = new Array();
+    window.thirdValues    = new Array();
+
+    var varieties         = {
+      "Broccoli" :              "Local",
+      "Cabbage (Green)":        "Local",
+      "Cabbage (Red)":          "Local",
+      "Callaloo":               ["Shredded", "Whole"],
+      "Cantaloupe":             "Local",
+      "Carrot":                 "Local",
+      "Cauliflower":            "Local",
+      "Coco":                   "Local",
+      "Cucumber":               "Local",
+      "Dasheen":                "Local",
+      "Escallion":              "Local",
+      "Ginger":                 "Local",
+      "Green Banana":           "Local",
+      "Gungo Peas":             ["Dry","Green"],
+      "Honeydew Melon":         "Local",
+      "Irish Potato":           "Local",
+      "Lettuce":                ["Iceberg (Local)","Other","Romaine (Local)"],
+      "Okra":                   "Local",
+      "Onion":                  "Local",
+      "Pak Choi":               "Local",
+      "Papaya":                 "Local",
+      "Pepper":                 ["Scotch Bonnet","West Indian Red"],
+      "Pineapple":              ["Cow Boy", "MD 2", "Sugar Loaf"],
+      "Plantain":               ["Green", "Ripe"],
+      "Pumpkin":                "Local",
+      "Sorrel":                 "Local",
+      "String Bean":            "Local",
+      "Sweet Pepper (Green)":   ["Green House (Local)","Local"],
+      "Sweet Pepper (Red)":     ["Green House (Local)","Local"],
+      "Sweet Pepper (Yellow)":  ["Green House (Local)","Local"],
+      "Sweet Potato":           "Local",
+      "Thyme":                  "Local",
+      "Tomatoes(Plummy)":       "Local",
+      "Tomatoes(Salad)":        "Local",
+      "Watermelon":             "Local",
+      "Yam":                    ["Negro","Sweet","White (Lucea)","Yellow"]
+    }
+
+    $(document).ready( function() {
+ 
+      // Beginning of Dimple JS
+                        
+      var data1      = null;
+      var data2      = null;
+
+      //Price charts
+      //(chart, width, height)
+      var svg1      = dimple.newSvg("#chartContainer", "100%", 450);
+      var svg2      = dimple.newSvg("#chartContainer3", "100%", 450);
+      
+      // Supply charts
+      var svg3      = dimple.newSvg("#chartContainer2", "100%", 450);
+      var svg4      = dimple.newSvg("#chartContainer4", "100%", 450);
+
+      var chart1    = new dimple.chart(svg1,data1);
+      var chart2    = new dimple.chart(svg2,data2);
+      
+      var chart3    = new dimple.chart(svg3,data1);
+      var chart4    = new dimple.chart(svg4,data2);
+
+      // Making charts responsive  
+
+      // Toggle the display of the 'Second Item' inputs
+      $('input[type=radio][name=numItems]').change(function(){
+        if (this.value == 'oneItem'){
+          $("#secondItemInputs").css("display","none");
+          $("#fruit_selection_2").css({"display":"none","border-color":"#f0f2f0"});
+          $("#parish_2").css({"display":"none","border-color":"#f0f2f0"});
+          $("#avgText2").css("display","none");
+        } else {
+          $("#secondItemInputs").css("display","block");
+          $("#fruit_selection_2").css({"display":"block","border-color":""});
+          $("#parish_2").css({"display":"block","border-color":""});
+          $("#avgText2").css("display","block");
+        }
+      })
+
+      // Changing the 'Variety or Source' based on which commodity is selected
+      $('#fruit_selection_1').change(function(){
+        $('#variety_1').empty();
+        var options = varieties[$(this).val()];
+        if (typeof options === 'object'){
+          options.forEach(function(element){
+            $('#variety_1').append('<option value="' + element + '">'+ element +'</option>');
+            }) } else {
+            $('#variety_1').append('<option value="' + options + '">'+ options +'</option>');
+            }
+        
+      });
+
+      $('#fruit_selection_2').change(function(){
+        $('#variety_2').empty();
+        var options = varieties[$(this).val()];
+        if (typeof options === 'object') {
+        options.forEach(function(element){
+          $('#variety_2').append('<option value="' + element + '">'+ element +'</option>');
+        }) } else {
+          $('#variety_2').append('<option value="' + options + '">'+ options +'</option>');
+        }
+        
+      });
+
+      $('#fruit_selection_3').change(function(){
+        $('#variety_3').empty();
+        var options = varieties[$(this).val()];
+        if (typeof options === 'object') {
+        options.forEach(function(element){
+          $('#variety_3').append('<option value="' + element + '">'+ element +'</option>');
+        }) } else {
+          $('#variety_3').append('<option value="' + options + '">'+ options +'</option>');
+        }
+        
+      });
+
+      // Changing the statistics displayed based on the price category selected
+      $('#price_selection_1').change(function(){
+        $('#priceCatHolder1').html('"' + $(this).val() + '"');        
+      })
+
+      $('#price_selection_2').change(function(){
+        $('#priceCatHolder2').html('"' + $(this).val() + '"');
+      })
+
+      $('#price_selection_3').change(function(){
+        $('#priceCatHolder3').html('"' + $(this).val() + '"');
+      })
+      
+      // Displaying helpful explanation of terms
+
+      $('#help_icon_1').click(function(){
+        $("#price_category_modal").modal("show");
+      });
+
+      $('#help_icon_2').click(function(){
+        $("#price_category_modal").modal("show");
+      });
+
+      $('#help_icon_3').click(function(){
+        $("#price_category_modal").modal("show");
+      });
+     
+      // Button click event handler for Section 1 of 2
+      $('#button').click(function() {
+
+        start_date_check      = Date.parse($("#start_date").val());
+        end_date_check        = Date.parse($("#end_date").val());
+
+        if (start_date_check > end_date_check) {
+          $("#date_check_modal").modal("show");
+        } else {
+          
+        
+        // Clearing the arrays that store the data when a new set of paramaters are submitted
+        window.firstValues    = [];
+        window.secondValues   = [];
+
+        // Serializing the data from the form for use in the AJAX function
+        var serial = $("#form1").serialize();
+
+        $.ajax({
+          type: "POST",
+          url: "formOne.php",
+          data: serial,
+          success: function(response) {
+
+                                   
+            // Splitting the response from PHP into two separate strings
+            var [first_string,second_string] = response.split("++");     
+          
+            if (first_string) {
+              
+              // Creating an array of strings for each of the two strings generated above
+              first_string_array = first_string.split("/");
+              // Initializing the total used to calculate the average price for each commodity
+              total1      = 0;
+              // Converting arrays of strings created above to arrays of JSON objects
+              first_string_array.forEach(function (element) {
+              transformed = JSON.parse(element);
+              window.firstValues.push(transformed);   
+              total1       = transformed.y + total1;
+                
+              });
+              // Calculating the average price for the selected commodity. The average value is rounded up to the nearest integer.
+              avg1        = Math.ceil(total1/window.firstValues.length);
+
+              $('#avgText1').css("visibility","visible");0
+
+            } else {
+              first_string_array = null;
+              $("#no_data_modal_1").modal("show");
+              $('#avgText1').css("visibility","hidden");
+            }
+            
+
+            if (second_string) {
+
+              second_string_array = second_string.split("/");
+
+              total2      = 0; 
+
+              second_string_array.forEach(function (element) {
+              transformed = JSON.parse(element);
+              window.secondValues.push(transformed);    
+              total2       = transformed.y + total2;
+              });
+
+              avg2        = Math.ceil(total2/window.secondValues.length);
+
+              $('#avgText2').css("visibility","visible");
+
+            } else {
+              second_string_array = null;
+              $('#no_data_modal_2').modal("show");
+              $('#avgText2').css("visibility","hidden");
+            }
+     
+            // Continuation of Dimple JS
+            
+            svg1.selectAll(".dimple-chart").remove();
+            svg3.selectAll(".dimple-chart").remove();
+            
+            switch ($('input[name=numItems]:checked').val()) {
+              case ('oneItem'):
+                var data1      = window.firstValues; 
+                break;
+              case ('twoItems'):
+                var data1      = window.firstValues.concat(window.secondValues); 
+                break;
+            }
+
+            var chart1    = new dimple.chart(svg1,data1);
+            var chart3    = new dimple.chart(svg3,data1);
+
+            chart1.x      = 47;
+            chart1.y      = 12;
+            
+            chart3.x      = 47;
+            chart3.y      = 12;
+
+            legend1       = chart1.addLegend(60, 0, 500, 30, "left");
+            legend3       = chart3.addLegend(60, 0, 500, 30, "left");
+            legend1.width = 250;
+            legend3.width = 250;
+
+            var x_axis_1  = chart1.addCategoryAxis("x", "realdate");
+            var y_axis_1  = chart1.addCategoryAxis("y", "y",);
+    
+            x_axis_1.title   = null;
+            y_axis_1.title   = null;
+      
+            var x_axis_3  = chart3.addCategoryAxis("x", "realdate");
+            var y_axis_3  = chart3.addCategoryAxis("y", "z",);
+
+            y_axis_1.showGridlines = true;
+            y_axis_3.showGridlines = true;
+
+            x_axis_3.title   = null;
+            y_axis_3.title   = null;
+
+                       
+            var dimple1     = chart1.addSeries("name", dimple.plot.scatter);
+            var dimple1     = chart1.addSeries("name", dimple.plot.line);
+
+            var dimple3     = chart3.addSeries("name", dimple.plot.scatter);
+            var dimple3     = chart3.addSeries("name", dimple.plot.line);
+
+            dimple1.getTooltipText= function(e) {
+                return [
+                  "Date: " + e.x,
+                  "Farmgate Price: $" + e.y,
+                ];
+            } 
+
+            dimple3.getTooltipText= function(e) {
+              switch(e.y) {
+                  case 5:
+                    var supply = 'Abundant';
+                    break;
+                  case 4:
+                    var supply = 'Good';
+                    break;
+                  case 3:
+                    var supply = 'Fair';
+                    break;
+                  case 2:
+                    var supply = 'Moderate';
+                    break;
+                  case 1:
+                    var supply = 'Scarce';
+                    break;
+                  default:
+                    var supply = '';
+                    break;
+                }
+                return [
+                  "Date: " + e.x,
+                  "Farmgate Supply: " + supply,
+                ];
+            }
+
+            chart1.data   = data1;
+            chart3.data   = data1;
+
+            chart1.draw();
+            chart3.draw();
+
+          // End of Dimple JS
+        
+          $("#fruitPlaceholder1").text($("#fruit_selection_1").val());
+          $("#parishPlaceholder1").text($("#parish_1").val());
+          if (typeof avg1 !== 'undefined') {$("#pricePlaceholder1").text("$" + avg1);}
+
+          $("#fruitPlaceholder2").text($("#fruit_selection_2").val());
+          $("#parishPlaceholder2").text($("#parish_2").val());
+          if (typeof avg2 !== 'undefined') {$("#pricePlaceholder2").text("$" + avg2);}
+          
+          //Changing y-axis labels
+          $("#chartContainer2 g.dimple-axis-y g.tick text").each(function() {
+                switch($(this).html()) {
+                  case '5':
+                    $(this).html('Abundant');
+                    break;
+                  case '4':
+                    $(this).html('Good');
+                    break;
+                  case '3':
+                    $(this).html('Fair');
+                    break;
+                  case '2':
+                    $(this).html('Moderate');
+                    break;
+                  case '1':
+                    $(this).html('Scarce');
+                    break;
+                  default:
+                    $(this).html('');
+                    break;
+                }
+               
+          });
+
+          $("#chartContainer2 g.dimple-axis-y g.tick text").css("transform","translate(5px)");
+
+        
+          // Only displaying a fraction of the ticks on the x-axis          
+          
+          var ticks_1 = $("#chartContainer g.dimple-axis-x g.tick text");          
+          
+          $("#chartContainer g.dimple-axis-x g.tick text").css("opacity","0");
+          $("#chartContainer2 g.dimple-axis-x g.tick text").css("opacity","0");
+
+          if(ticks_1.length >= 15){
+            for(let pos = 0; pos < ticks_1.length; pos++){
+              if(pos % 3 == 0){
+                $("#chartContainer g.dimple-axis-x g.tick:eq(" + pos + ") text").css("opacity","1");
+              }
+            }
+          
+
+            for(let pos = 0; pos < ticks_1.length; pos++){
+              if(pos % 3 == 0){
+                $("#chartContainer2 g.dimple-axis-x g.tick:eq(" + pos + ") text").css("opacity","1");
+              }
+            }
+          } else {
+            $("#chartContainer g.dimple-axis-x g.tick text").css("opacity","1");
+            $("#chartContainer2 g.dimple-axis-x g.tick text").css("opacity","1");
+          }
+
+
+          } // End of AJAX "success" parameter
+
+
+          }); // End of AJAX 
+
+          
+
+
+          $("#form1").submit(function(e) {
+            e.preventDefault();
+            });
+        } // End of Date check IF-ELSE statement
+
+      }); // End of First "Button" statements
+
+      
+      // Second submit button click-event handler
+      $("#button_2").click(function() {
+
+        $('#stats2').css("visibility","visible");
+
+        window.thirdValues    = [];
+ 
+        var serial = $("#form2").serialize();
+
+        $.ajax({
+          type: "POST",
+          url: "formTwo.php",
+          data: serial,
+          success: function(response) {
+
+            if(response) {
+              // Initializing the 'total' variables for the calculation of the annual average price
+              total_2 = 0;
+              
+              var first_string_array = response.split("/");             
+                          
+              // Converting array of strings created above to array of JSON objects
+              first_string_array.forEach(function (element) {
+              transformed = JSON.parse(element);
+              window.thirdValues.push(transformed);
+              total_2 = transformed.y + total_2;        
+              });
+
+
+              avg_2 = Math.ceil(total_2/window.thirdValues.length);
+              $("#text3").css("display","block");
+
+              $('#pricePlaceholder3').text("$"+avg_2);
+
+              $('#priceType').text($("#price_selection_2").val());
+
+            }  else {
+              $("#no_data_modal_3").modal("show");
+              $("#text3").css("display","none");
+            };
+
+            // Saving the name and parish of the selected fruit or vegetable for use in the graph's legend
+            window.name_3     =   $("#fruit_selection_3").val();
+            window.parish_3   =   $("#parish_3").val();
+            window.year_3     =   $('input[type=radio][name=yearChoice]:checked').val();
+             
+            // Continuation of Dimple JS
+            svg2.selectAll(".dimple-chart").remove();
+            svg4.selectAll(".dimple-chart").remove();
+
+            data2 = window.thirdValues;
+
+            var chart2    = new dimple.chart(svg2,data2);
+            var chart4    = new dimple.chart(svg4,data2);
+
+            chart2.x      = chart4.x    = 47;
+            chart2.y      = chart4.y    = 12;
+
+            legend2       = chart2.addLegend(60, 0, 500, 30, "left");
+            legend4       = chart4.addLegend(60, 0, 500, 30, "left");
+      
+            var x_axis_2     = chart2.addCategoryAxis("x", "x");
+            var y_axis_2     = chart2.addCategoryAxis("y", "y");
+
+            var x_axis_4     = chart4.addCategoryAxis("x", "x");
+            var y_axis_4     = chart4.addCategoryAxis("y", "z");
+
+            y_axis_2.showGridlines = true;
+            y_axis_4.showGridlines = true;
+
+            x_axis_2.title   = null;
+            y_axis_2.title   = null;
+            
+            x_axis_4.title   = null;
+            y_axis_4.title   = null;
+
+            var dimple2      = chart2.addSeries("year", dimple.plot.scatter);
+            var dimple2      = chart2.addSeries("year", dimple.plot.line);
+            
+            var dimple4      = chart4.addSeries("year", dimple.plot.scatter);
+            var dimple4      = chart4.addSeries("year", dimple.plot.line);
+
+            dimple2.getTooltipText= function(e) {
+                return [
+                  "Date: " + EpochToDate(e.x),
+                  "Farmgate Price: $" + e.y,
+                ];
+            } 
+
+            dimple4.getTooltipText= function(e) {
+              switch(e.y) {
+                  case 5:
+                    var supply = 'Abundant';
+                    break;
+                  case 4:
+                    var supply = 'Good';
+                    break;
+                  case 3:
+                    var supply = 'Fair';
+                    break;
+                  case 2:
+                    var supply = 'Moderate';
+                    break;
+                  case 1:
+                    var supply = 'Scarce';
+                    break;
+                  default:
+                    var supply = '';
+                    break;
+                }
+                return [
+                  "Date: " + EpochToDate(e.x),
+                  "Farmgate Supply: " + supply,
+                ];
+            }
+             
+            chart2.draw()
+            chart4.draw()
+
+          // End of Dimple JS
+
+          
+          $("#chartContainer3 g.dimple-axis-x g.tick text").each(function() {
+            if ($(this).html() != "") {
+             var test = $(this).html(EpochToDayMonth($(this).html()));
+             }
+          });
+
+          $("#chartContainer4 g.dimple-axis-x g.tick text").each(function() {
+            if ($(this).html() != "") {
+             var test = $(this).html(EpochToDayMonth($(this).html()));
+             }
+          });
+          
+          $("#chartContainer4 g.dimple-axis-y g.tick text").each(function() {
+                switch($(this).html()) {
+                  case '5':
+                    $(this).html('Abundant');
+                    break;
+                  case '4':
+                    $(this).html('Good');
+                    break;
+                  case '3':
+                    $(this).html('Fair');
+                    break;
+                  case '2':
+                    $(this).html('Moderate');
+                    break;
+                  case '1':
+                    $(this).html('Scarce');
+                    break;
+                  default:
+                    $(this).html('');
+                    break;
+                }
+               
+          });
+          
+          var ticks_3 = $("#chartContainer3 g.dimple-axis-x g.tick text");
+
+          $("#chartContainer3 g.dimple-axis-x g.tick text").css("opacity","0");
+          $("#chartContainer4 g.dimple-axis-x g.tick text").css("opacity","0");
+
+
+          if(ticks_3.length >= 15){
+            for(let pos = 0; pos < ticks_3.length; pos++){
+              if(pos % 3 == 0){
+                $("#chartContainer3 g.dimple-axis-x g.tick:eq(" + pos + ") text").css("opacity","1");
+                $("#chartContainer4 g.dimple-axis-x g.tick:eq(" + pos + ") text").css("opacity","1");
+              }
+            }
+          } else {
+            $("#chartContainer3 g.dimple-axis-x g.tick text").css("opacity","1");
+            $("#chartContainer4 g.dimple-axis-x g.tick text").css("opacity","1");
+          } 
+
+          $("#chartContainer4 g.dimple-axis-y g.tick text").css("transform","translate(5px)");
+          
+        } // End of second button's AJAX success function
+
+          
+        }); // End of second AJAX function
+
+        $("#form2").submit(function(f) {
+            f.preventDefault();
+            });
+
+        
+            
+
+      }); // End of Second Button statements
+      
+      
+
+    }); // End of Document.ready function
+
+    
+
+  </script>
+
+</head>
+
+<body>
+
+  <div class="container-fluid">
+    
+    <h1>Farmgate Data Application</h1>
+    
+    <h2><b>Section 1 of 2: </b>Compare the Farmgate data of up to two commodities (fruits, vegetables, etc.).</h2>
+            
+    <div class="text radioGroup row">
+      <label for="oneItem" class="radio col-6"><input type="radio" id="oneItem" name="numItems" value="oneItem" > One Commodity</label>
+      <label for="twoItems" class="radio col-6"><input type="radio" id="twoItems" name="numItems" value="twoItems" checked="checked"> Two Commodities</label>  
+    </div>
+  
+    <form class="form row text" id="form1" name="form1" >
+          
+      <div class="col-12 col-sm-4 col-md-4 input" id="firstItemInputs">
+        <div class="sub"> 
+          <p class="Label">Commodity:</p>
+          <select class="select" name="fruit_1" id="fruit_selection_1" size="4">
+              <option value="Broccoli">Broccoli</option>
+              <option value="Cabbage (Green)">Cabbage (Green)</option>
+              <option value="Cabbage (Red)">Cabbage Red</option>
+              <option value="Callaloo">Callaloo</option>
+              <option value="Cantaloupe">Cantaloupe</option>
+              <option value="Carrot">Carrot</option>
+              <option value="Cauliflower">Cauliflower</option>
+              <option value="Coco">Coco</option>
+              <option value="Cucumber">Cucumber</option>
+              <option value="Dasheen">Dasheen</option>
+              <option value="Escallion">Escallion</option>
+              <option value="Ginger">Ginger</option>
+              <option value="Green Banana">Green Banana</option>
+              <option value="Gungo Peas">Gungo Peas</option>
+              <option value="Honeydew Melon">Honeydew Melon</option>
+              <option value="Irish Potato">Irish Potato</option>
+              <option value="Lettuce">Lettuce</option>
+              <option value="Okra">Okra</option>
+              <option value="Onion">Onion</option>
+              <option value="Pak Choi">Pak Choi</option>
+              <option value="Papaya">Papaya</option>
+              <option value="Pepper">Pepper</option>
+              <option value="Pineapple">Pineapple</option>
+              <option value="Plantain">Plantain</option>
+              <option value="Pumpkin">Pumpkin</option>
+              <option value="Sorrel">Sorrel</option>
+              <option value="String Bean">String Bean</option>
+              <option value="Sweet Pepper (Green)" selected="selected">Sweet Pepper (Green)</option>
+              <option value="Sweet Pepper (Red)">Sweet Pepper (Red)</option>
+              <option value="Sweet Pepper (Yellow)">Sweet Pepper (Yellow)</option>
+              <option value="Sweet Potato">Sweet Potato</option>
+              <option value="Thyme">Thyme</option>
+              <option value="Tomatoes(Plummy)">Tomatoes(Plummy)</option>
+              <option value="Tomatoes(Salad)">Tomatoes(Salad)</option>
+              <option value="Watermelon">Watermelon</option>
+              <option value="Yam">Yam</option>            
+          </select>
+        </div>
+
+        <div class="sub">
+          <p class="Label">Variety or Source:</p>
+          <select class="select" name="variety_1" id="variety_1">
+            <option value="Green House (Local)">Green House (Local)</option>
+            <option value="Local" selected="selected">Local</option>
+          </select>
+        </div>
+
+        <div class="sub">
+          <p class="Label"> Grade of Commodity:</p>
+          <select class="select" name="grade_1" id="grade_1">
+            <option value="Excellent">Excellent</option>
+          </select>
+        </div>
+
+        <div class="sub">
+          <p class = "Label ques">Price Category:</p><img id="help_icon_1" class="helpIcon" src="question.png" alt="Explaining the term price category">
+          <select class="select" name="price_selection_1" id="price_selection_1">
+            <option value="Low">Low</option>
+            <option value="High">High</option>
+            <option value="Most_Frequent">Most Frequent</option>
+          </select>
+        </div>
+
+        <div class="sub">
+          <p class = "Label">Parish:</p>
+          <select class="select" name="parish_1" id="parish_1">                
+              <option value="Clarendon">Clarendon</option>
+              <option value="Hanover">Hanover</option>
+              <option value="Manchester">Manchester</option>
+              <option value="Portland">Portland</option>
+              <option value="St. Andrew">St. Andrew</option>
+              <option value="St. Ann">St. Ann</option>
+              <option value="St. Catherine">St. Catherine</option>
+              <option value="St. Elizabeth">St. Elizabeth</option>
+              <option value="St. James">St. James</option>
+              <option value="St. Mary">St. Mary</option>
+              <option value="St. Thomas">St. Thomas</option>
+              <option value="Trelawny">Trelawny</option>
+              <option value="Westmoreland">Westmoreland</option>
+            </select>
+        </div>
+
+        
+      </div>
+         
+    
+      <div class="col-12 col-sm-4 col-md-4 input" id="secondItemInputs">
+        <div class="sub">
+          <p class="Label">Commodity:</p>
+          <select class="select" name="fruit_2" id="fruit_selection_2" size="4">
+              <option value="Broccoli">Broccoli</option>
+              <option value="Cabbage (Green)">Cabbage (Green)</option>
+              <option value="Cabbage (Red)">Cabbage Red</option>
+              <option value="Callaloo">Callaloo</option>
+              <option value="Cantaloupe">Cantaloupe</option>
+              <option value="Carrot">Carrot</option>
+              <option value="Cauliflower">Cauliflower</option>
+              <option value="Coco">Coco</option>
+              <option value="Cucumber">Cucumber</option>
+              <option value="Dasheen">Dasheen</option>
+              <option value="Escallion">Escallion</option>
+              <option value="Ginger">Ginger</option>
+              <option value="Green Banana">Green Banana</option>
+              <option value="Gungo Peas">Gungo Peas</option>
+              <option value="Honeydew Melon">Honeydew Melon</option>
+              <option value="Irish Potato" selected="selected">Irish Potato</option>
+              <option value="Lettuce">Lettuce</option>
+              <option value="Okra">Okra</option>
+              <option value="Onion">Onion</option>
+              <option value="Pak Choi">Pak Choi</option>
+              <option value="Papaya">Papaya</option>
+              <option value="Pepper">Pepper</option>
+              <option value="Pineapple">Pineapple</option>
+              <option value="Plantain">Plantain</option>
+              <option value="Pumpkin">Pumpkin</option>
+              <option value="Sorrel">Sorrel</option>
+              <option value="String Bean">String Bean</option>
+              <option value="Sweet Pepper (Green)">Sweet Pepper (Green)</option>
+              <option value="Sweet Pepper (Red)">Sweet Pepper (Red)</option>
+              <option value="Sweet Pepper (Yellow)">Sweet Pepper (Yellow)</option>
+              <option value="Sweet Potato">Sweet Potato</option>
+              <option value="Thyme">Thyme</option>
+              <option value="Tomatoes(Plummy)">Tomatoes(Plummy)</option>
+              <option value="Tomatoes(Salad)">Tomatoes(Salad)</option>
+              <option value="Watermelon">Watermelon</option>
+              <option value="Yam">Yam</option>            
+                            
+            </select>
+        </div>
+
+        <div class="sub">
+        <p class="Label">Variety or Source:</p>
+        <select class="select" name="variety_2" id="variety_2">
+          <option value="Local">Local</option>
+        </select>
+        </div>
+
+        <div class="sub">
+          <p class="Label"> Grade of Commodity:</p>
+          <select class="select" name="grade_2" id="grade_2">
+            <option value="Excellent">Excellent</option>
+          </select>
+        </div>
+
+
+        <div class="sub">
+          <p class = "Label ques">Price Category:</p><img id="help_icon_2" class="helpIcon" src="question.png" alt="Explaining the term price category">
+          <select class="select" name="price_selection_2" id="price_selection_2">
+            <option value="Low">Low</option>
+            <option value="High">High</option>
+            <option value="Most_Frequent">Most Frequent</option>
+          </select>
+        </div>
+
+        <div class="sub">
+          <p class="Label">Parish:</p>
+          <select class="select" name="parish_2" id="parish_2">                
+             <option value="Clarendon">Clarendon</option>
+              <option value="Hanover">Hanover</option>
+              <option value="Manchester">Manchester</option>
+              <option value="Portland">Portland</option>
+              <option value="St. Andrew">St. Andrew</option>
+              <option value="St. Ann">St. Ann</option>
+              <option value="St. Catherine">St. Catherine</option>
+              <option value="St. Elizabeth">St. Elizabeth</option>
+              <option value="St. James">St. James</option>
+              <option value="St. Mary">St. Mary</option>
+              <option value="St. Thomas">St. Thomas</option>
+              <option value="Trelawny">Trelawny</option>
+              <option value="Westmoreland">Westmoreland</option>
+            </select>
+        </div>
+      
+
+      </div>     
+                
+      <div class="col-12 col-sm-3 col-md-3 input">
+        <div class="sub">
+          <p class="Label">Start Date:</p>
+          <input class="date" type="date" name="startdate" id="start_date" value="2020-01-01" min="01-01-2019" max="31-12-2021">
+        </div>
+        <div class="sub">
+          <p class="Label">End Date:</p>
+          <input class="date" type="date" name="enddate" id="end_date" value="2020-03-01" min="01-01-2019" max="31-12-2021"> 
+        </div>
+
+        <div class="sub">
+          <input type='submit' value="SUBMIT" id="button" class="submit R2 C4">
+       </div>
+      
+      
+      </div>
+                               
+    
+      
+      
+    </form>
+
+
+      <!--End of Form One-->
+
+        <div class="stats text" id="stats1">
+            <p class="avgText" id="avgText1">The average <span id="priceCatHolder1">"Low"</span> price for <span id="fruitPlaceholder1">FRUIT</span> in <span id="parishPlaceholder1">PARISH</span> is: <b><span class="avgPrice" id="pricePlaceholder1">PRICE</span>/kg</b></p>
+            <p class="avgText" id="avgText2">The average <span id="priceCatHolder2">"Low"</span> price for <span id="fruitPlaceholder2">FRUIT</span> in <span id="parishPlaceholder2">PARISH</span> is: <b><span class="avgPrice" id="pricePlaceholder2">PRICE</span>/kg</b></p>
+        </div>
+      
+      <h3>Farmgate Price ($/kg) vs. Date</h3>
+      <div class="graph" id="chartContainer" ></div>
+
+      <h3>Farmgate Supply vs. Date</h3>
+      <div class="graph" id="chartContainer2"></div>
+      
+      
+
+      <!-- Beginning of Section 2 of 2: Viewing Annual Data-->
+
+      <h2 class="h2_2"><b>Section 2 of 2:</b> View the Farmgate data of a commodity (fruit, vegetable, etc.) for a calendar year.</h2>
+
+      <form class="form row text" id="form2">
+        <div class="col-12 col-sm-6 col-md-6 input">
+          <div class="sub">
+            <p class="Label">Commodity:</p>
+            <select class="select" name="fruit_3" id="fruit_selection_3" size="4">
+              <option value="Broccoli" selected="selected">Broccoli</option>
+              <option value="Cabbage (Green)">Cabbage (Green)</option>
+              <option value="Cabbage (Red)">Cabbage Red</option>
+              <option value="Callaloo">Callaloo</option>
+              <option value="Cantaloupe">Cantaloupe</option>
+              <option value="Carrot">Carrot</option>
+              <option value="Cauliflower">Cauliflower</option>
+              <option value="Coco">Coco</option>
+              <option value="Cucumber">Cucumber</option>
+              <option value="Dasheen">Dasheen</option>
+              <option value="Escallion">Escallion</option>
+              <option value="Ginger">Ginger</option>
+              <option value="Green Banana">Green Banana</option>
+              <option value="Gungo Peas">Gungo Peas</option>
+              <option value="Honeydew Melon">Honeydew Melon</option>
+              <option value="Irish Potato">Irish Potato</option>
+              <option value="Lettuce">Lettuce</option>
+              <option value="Okra">Okra</option>
+              <option value="Onion">Onion</option>
+              <option value="Pak Choi">Pak Choi</option>
+              <option value="Papaya">Papaya</option>
+              <option value="Pepper">Pepper</option>
+              <option value="Pineapple">Pineapple</option>
+              <option value="Plantain">Plantain</option>
+              <option value="Pumpkin">Pumpkin</option>
+              <option value="Sorrel">Sorrel</option>
+              <option value="String Bean">String Bean</option>
+              <option value="Sweet Pepper (Green)">Sweet Pepper (Green)</option>
+              <option value="Sweet Pepper (Red)">Sweet Pepper (Red)</option>
+              <option value="Sweet Pepper (Yellow)">Sweet Pepper (Yellow)</option>
+              <option value="Sweet Potato">Sweet Potato</option>
+              <option value="Thyme">Thyme</option>
+              <option value="Tomatoes(Plummy)">Tomatoes(Plummy)</option>
+              <option value="Tomatoes(Salad)">Tomatoes(Salad)</option>
+              <option value="Watermelon">Watermelon</option>
+              <option value="Yam">Yam</option>                   
+            </select>
+          </div>
+
+          <div class="sub">
+            <p class="Label">Variety or Source:</p>
+            <select class="select" name="variety_3" id="variety_3">
+              <option value="Local">Local</option>
+            </select>
+          </div>
+
+          <div class="sub">
+            <p class="Label">Grade of Commodity:</p>
+            <select class="select" name="grade_3" id="grade_3">
+              <option value="Excellent">Excellent</option>
+            </select>
+          </div>
+
+          <div class="sub">
+            <p class = "Label ques">Price Category:</p><img id="help_icon_3" class="helpIcon" src="question.png" alt="Explaining the term price category">
+            <select class="select" name="price_selection_3" id="price_selection_3">
+              <option value="Low">Low</option>
+              <option value="High">High</option>
+              <option value="Most_Frequent">Most Frequent</option>
+            </select>
+          </div>
+
+          <div class="sub">
+            <p class="Label">Parish:</p>
+            <select class="select" name="parish_3" id="parish_3">
+              <option value="Clarendon">Clarendon</option>
+              <option value="Hanover">Hanover</option>
+              <option value="Manchester">Manchester</option>
+              <option value="Portland">Portland</option>
+              <option value="St. Andrew">St. Andrew</option>
+              <option value="St. Ann">St. Ann</option>
+              <option value="St. Catherine">St. Catherine</option>
+              <option value="St. Elizabeth">St. Elizabeth</option>
+              <option value="St. James">St. James</option>
+              <option value="St. Mary">St. Mary</option>
+              <option value="St. Thomas">St. Thomas</option>
+              <option value="Trelawny">Trelawny</option>
+              <option value="Westmoreland">Westmoreland</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-5 col-md-5 input row" id="checkboxes">
+        
+          <label class="checkDiv col-4 col-sm-4 col-md-4" for="check21"><input id="check21" class="checkbox" type="radio" name="yearChoice" value="2021" checked="checked"> 2021</label>
+          
+          <label class="checkDiv col-4 col-sm-4 col-md-4" for="check20"><input id="check20" class="checkbox" type="radio" name="yearChoice" value="2020"> 2020</label>
+          
+          <label class="checkDiv col-4 col-sm-4 col-md-4" for="check19"><input id="check19" class="checkbox" type="radio" name="yearChoice" value="2019"> 2019</label>
+              
+          <input class="submit col-12 col-sm-12" type='submit' value="SUBMIT" id="button_2">
+        </div>
+        
+
+      </form>
+      
+      
+      <div class="stats text" id="stats2">
+        <div class=""
+          <p class="avgText" id="text3"> The average <span id="priceCatHolder3">"Low"</span> price is: <b><span id="pricePlaceholder3"></span>/kg</b></p>
+        </div>
+        
+        
+      </div>
+
+      <h3>Farmgate Price ($/kg) vs. Date</h3>
+      <div class="graph" id="chartContainer3"></div>
+
+      <h3>Farmgate Supply vs. Date</h3>
+      <div class="graph" id="chartContainer4"></div> 
+
+      
+    </div> <!--End of Container-->
+
+      <!--Modals-->
+      <div>
+          <!-- Modal - Date Check - Modal -->
+          <div id="date_check_modal" class="modal fade" tabindex="-1">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">Check your dates</h5>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                          <p>The "End Date" selected should occur after the "Start Date". Please re-check the dates you've submitted and try again.</p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Modal - No Data - First Commodity - Modal -->
+          <div id="no_data_modal_1" class="modal fade" tabindex="-1">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">No Data for First Commodity in Section 1 of 2</h5>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                          <p>There is no data, for the first commodity, matching the selected parameters.</p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Modal - No Data - Second Commodity - Modal -->
+          <div id="no_data_modal_2" class="modal fade" tabindex="-1">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">No Data for Second Commodity in Section 1 of 2</h5>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                          <p>There is no data, for the second commodity, matching the selected parameters.</p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Modal - No Data - Commodity - Section 2 of 2 - Modal -->
+          <div id="no_data_modal_3" class="modal fade" tabindex="-1">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">No Data for Commodity in Section 2 of 2</h5>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                          <p>There is no data, for the commodity, matching the selected parameters.</p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Modal - Price Category - Modal -->
+          <div id="price_category_modal" class="modal fade" tabindex="-1">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">What are the different price categories?</h5>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <div class="modal-body">
+                          <p>Each week JAMIS collects three categories of prices for each commodity: The highest price ("High"), the lowest price ("Low") and the most frequent price ("Most Frequent").</p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+    <script>
+
+    function EpochToDayMonth(epoch){
+                let x_label = new Date(epoch * 1000);
+                day_label = String(x_label.getDate() + 1);
+                month_label = x_label.toLocaleString('default', {month: 'short'});
+                
+                return day_label + " - " + month_label;
+      }
+
+
+    function EpochToDate(epoch){
+          let x_label = new Date(epoch * 1000);
+          day_label = String(x_label.getDate() + 1);
+          month_label = String(x_label.getMonth() + 1);
+          year_label = String(x_label.getFullYear());
+          return day_label + "-" + month_label + "-" + year_label;
+        }
+
+    </script>
+
+  </script>
+
+</body>
+</html>
+
