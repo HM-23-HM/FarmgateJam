@@ -5,10 +5,10 @@ The data was received in the following tabular format once a week.
 
 ![image](https://user-images.githubusercontent.com/73763814/118463549-7b659700-b6c5-11eb-8183-ee15936fad41.png)
 
-Every spreadsheet was a standalone, and this made perforning simple data analysis cumbersome.<br/>
+Every spreadsheet was a standalone, and this made performing simple data analysis cumbersome.<br/>
 The alternative option was to use the frustrating online portal. [See if you have better luck](http://reports.ja-mis.com/query_price_data_archiverpt.php)<br/>
 
-So for my first ever project, I decided to create a web application to make visualization and analysis of the Farmgate data much simpler and intuitive.<br/>
+So for my first ever project, I decided to create a web application to make visualization and analysis of the Farmgate data much simpler and intuitive.<br/><br/>
 First, I created a script with Python to automatically extract the data from the Excel sheets and store them in a MySQL database.
 I initially created a web app with Dash (Plotly), but I wanted greater control over the looks and feel of the web page so I created a web app from scratch.<br/>
 
