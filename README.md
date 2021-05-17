@@ -12,6 +12,6 @@ So for my first ever project, I decided to create a web application to make visu
 First, I created a script with Python to automatically extract the data from the Excel sheets and store them in a MySQL database.
 I initially created a web app with Dash (Plotly), but I wanted greater control over the looks and feel of the web page so I created a web app from scratch.<br/>
 
-In the end, there's still room for improvement but I accomplished my goal of creating a better experience.
+Feedback ([See Twitter feedback](https://twitter.com/HMCodes/status/1379454456929079298?s=20" target="_blank)) shows that there's still room for improvement but I accomplished my goal of creating a better experience.
 I'm excited to see where I go from here.
 
