@@ -1,5 +1,5 @@
 # FarmgateJam
-TL;DR Data analysis web application for Jamaican Farmgate prices.
+*TL;DR Data analysis web application for Jamaican Farmgate prices.*
 
 The data was received in the following tabular format once a week.
 
